@@ -52,7 +52,7 @@ console.log(sortBy(array, 'id')); // Output: [{ id: 3, name: 'Bob' }, { id: 2, n
 console.log(sortBy(array, 'id', 'asc')); // Output: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Alice' }, { id: 3, name: 'Bob' }]
 ```
 
-### 'isSorted`
+### `isSorted`
 
 Checks if an array of objects is sorted by a given key.
 
