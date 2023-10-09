@@ -1,4 +1,4 @@
-import {isSortedBy} from "../src"
+import { isSortedBy } from '../src'
 
 describe('isSortedBy', () => {
 	test('string', () => {
@@ -29,9 +29,9 @@ describe('isSortedBy', () => {
 		expect(isSortedBy(itemsUnsorted, 'id')).toBeFalsy()
 	})
 	test('function:number', () => {
-		const itemsAsc = [{id: () => 1}, {id: () => 2}, {id: () => 3}]
-		const itemsDesc = [{id: () => 3}, {id: () => 2}, {id: () => 1}]
-		const itemsUnsorted = [{id: () => 1}, {id: () => 3}, {id: () => 2}]
+		const itemsAsc = [{ id: () => 1 }, { id: () => 2 }, { id: () => 3 }]
+		const itemsDesc = [{ id: () => 3 }, { id: () => 2 }, { id: () => 1 }]
+		const itemsUnsorted = [{ id: () => 1 }, { id: () => 3 }, { id: () => 2 }]
 
 		expect(isSortedBy(itemsAsc, 'id', 'asc')).toBeTruthy()
 		expect(isSortedBy(itemsDesc, 'id', 'desc')).toBeTruthy()
