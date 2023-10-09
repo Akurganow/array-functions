@@ -45,3 +45,7 @@ export function isSortedBy<T extends Sortable<T>>(array: T[], key: SortableKey<T
 
 	return isSortedValues(mapped, order)
 }
+
+export function getKeyValue<T extends object>(arr: T[], key: keyof T): T[keyof T][] {
+	return arr.map(item => item[key])
+}
