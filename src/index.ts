@@ -6,7 +6,11 @@ type SortableOrder = 'asc' | 'desc'
 
 const defaultOrder: SortableOrder = 'desc'
 
-function isSortedValues<T extends (string | number)>(values: T[], order: SortableOrder = defaultOrder): boolean {
+export function filterBySameKeyValue<T extends { [k in string]: unknown }>(value: T, index: number, array: T[], key: keyof T) {
+	return index === array.findIndex(v => v[key] === value[key])
+}
+
+export function isSortedValues<T extends (string | number)>(values: T[], order: SortableOrder = defaultOrder): boolean {
 	if (values.length === 0) return true
 
 	return values.every((value, index, valuesArray) => {
