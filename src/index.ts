@@ -10,6 +10,40 @@ export function filterBySameKeyValue<T extends { [k in string]: unknown }>(value
 	return index === array.findIndex(v => v[key] === value[key])
 }
 
+export function compareValues<T extends (string | number)>(a: T, b: T, order: SortableOrder = defaultOrder): number {
+	switch (typeof a) {
+		case 'string':
+			return order === 'asc'
+				? (a as string).localeCompare(b as string)
+				: (b as string).localeCompare(a as string)
+		case 'number':
+			return order === 'asc'
+				? (a as number) - (b as number)
+				: (b as number) - (a as number)
+		default:
+			return 0
+	}
+}
+
+
+export function sortBy<T extends Sortable<T>>(items: T[], key: SortableKey<T>, order: SortableOrder = defaultOrder) {
+	if (items.length <= 1) return items
+
+	return items.sort((a, b) => {
+		if (typeof a[key] !== typeof b[key]) throw new Error(`Types are not equal (a: ${typeof a[key]}, b: ${typeof b[key]})`)
+
+		let aValue = a[key] as string | number
+		let bValue = b[key] as string | number
+
+		if (typeof aValue === 'function' && typeof bValue === 'function') {
+			aValue = (aValue as (() => string | number))()
+			bValue = (bValue as (() => string | number))()
+		}
+
+		return compareValues(aValue, bValue, order)
+	})
+}
+
 export function isSortedValues<T extends (string | number)>(values: T[], order: SortableOrder = defaultOrder): boolean {
 	if (values.length === 0) return true
 
