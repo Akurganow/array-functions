@@ -1,5 +1,18 @@
 
 
+## [1.3.0](https://github.com/Akurganow/array-functions/compare/1.2.0...1.3.0) (2023-10-10)
+
+
+### Features
+
+* Add getUniqueValues ([b20032e](https://github.com/Akurganow/array-functions/commit/b20032e22b4b2b9d30fcc56e31e6094aabc89393))
+
+
+### Bug Fixes
+
+* eslint errors ([aa2ce0c](https://github.com/Akurganow/array-functions/commit/aa2ce0c0352b6b269058935966960a4aff702f15))
+* export Sortable types ([f11d1c7](https://github.com/Akurganow/array-functions/commit/f11d1c7f614141ac5983f1183bf30617460c82fe))
+
 ## [1.2.0](https://github.com/Akurganow/array-functions/compare/1.1.0...1.2.0) (2023-10-09)
 
 
