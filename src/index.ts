@@ -84,6 +84,12 @@ export function isSortedBy<T extends Sortable<T>>(array: T[], key: SortableKey<T
 	return isSortedValues(mapped, order)
 }
 
-export function getKeyValue<T extends object>(arr: T[], key: keyof T): T[keyof T][] {
+export function getKeyValue<T extends { [k in string]: unknown }>(arr: T[], key: keyof T): T[keyof T][] {
 	return arr.map(item => item[key])
+}
+
+export function getUniqueValues<T extends { [k in string]: unknown }>(arr: T[], key: keyof T): T[keyof T][] {
+	const filtered = arr.filter((item, index, array) => filterBySameKeyValue(item, index, array, key))
+
+	return getKeyValue(filtered, key)
 }

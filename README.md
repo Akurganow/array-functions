@@ -70,6 +70,22 @@ console.log(isSorted(array, 'id', 'asc')) // Output: true
 console.log(isSorted(array, 'name', 'asc')) // Output: false
 ```
 
+### `getUniqueValues`
+
+Returns an array of unique values from an array of objects.
+
+```javascript
+import { getUniqueValues } from '@plq/array-functions'
+
+const array = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 3, name: 'Alice' },
+]
+
+console.log(getUniqueValues(array, 'name')) // Output: ['Alice', 'Bob']
+```
+
 ## Development
 
 ### Install dependencies
