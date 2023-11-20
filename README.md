@@ -86,6 +86,22 @@ const array = [
 console.log(getUniqueValues(array, 'name')) // Output: ['Alice', 'Bob']
 ```
 
+### `splitByKeyValue`
+
+Splits an array of objects into subarrays with the same value of the given key.
+
+```javascript
+import { splitByKeyValue } from '@plq/array-functions'
+
+const array = [
+	{ id: 1, name: 'Alice' },
+	{ id: 2, name: 'Bob' },
+	{ id: 3, name: 'Alice' },
+]
+
+console.log(splitByKeyValue(array, 'name')) // Output: [[{ id: 1, name: 'Alice' }, { id: 3, name: 'Alice' }], [{ id: 2, name: 'Bob' }]]
+```
+
 ## Development
 
 ### Install dependencies
