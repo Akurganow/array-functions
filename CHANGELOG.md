@@ -1,5 +1,12 @@
 
 
+## [1.4.0](https://github.com/Akurganow/array-functions/compare/1.3.0...1.4.0) (2023-11-20)
+
+
+### Features
+
+* add splitByKeyValue function ([d22309b](https://github.com/Akurganow/array-functions/commit/d22309b3772432a53195d90a6341227a1280107a))
+
 ## [1.3.0](https://github.com/Akurganow/array-functions/compare/1.2.0...1.3.0) (2023-10-10)
 
 
