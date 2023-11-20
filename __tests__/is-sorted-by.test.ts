@@ -1,6 +1,31 @@
 import { isSortedBy } from '../src'
 
 describe('isSortedBy', () => {
+	test('empty', () => {
+		const items: Array<{ id: string }> = []
+
+		expect(isSortedBy(items, 'id')).toBeTruthy()
+	})
+	test('single', () => {
+		const items = [{ id: 'a' }]
+
+		expect(isSortedBy(items, 'id')).toBeTruthy()
+	})
+	test('same', () => {
+		const items = [{ id: 'a' }, { id: 'a' }, { id: 'a' }]
+
+		expect(isSortedBy(items, 'id')).toBeTruthy()
+	})
+	test('mixed types', () => {
+		const items = [{ id: 'a' }, { id: 1 }, { id: 'c' }]
+
+		expect(() => isSortedBy(items, 'id')).toThrowErrorMatchingInlineSnapshot('"Types are not equal (a: string, 1: number)"')
+	})
+	test('not an array of objects', () => {
+		const items = ['a', 'b', 'c'] as unknown as Array<{ id: string }>
+
+		expect(() => isSortedBy(items, 'id')).toThrowErrorMatchingInlineSnapshot('"Array is not an array of objects. (string)"')
+	})
 	test('string', () => {
 		const itemsAsc = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
 		const itemsDesc = [{ id: 'c' }, { id: 'b' }, { id: 'a' }]

@@ -103,7 +103,7 @@ export function isSortedValues<T extends (string | number)>(values: T[], order: 
 	return values.every((value, index, valuesArray) => {
 		if (index === 0) return true
 
-		if (typeof value !== typeof valuesArray[index - 1]) throw new Error(`Types are not equal (a: ${typeof value}, b: ${typeof valuesArray[index - 1]})`)
+		if (typeof value !== typeof valuesArray[index - 1]) throw new Error(`Types are not equal (${valuesArray[index - 1]}: ${typeof valuesArray[index - 1]}, ${value}: ${typeof value})`)
 
 		const prevValue = valuesArray[index - 1]
 
