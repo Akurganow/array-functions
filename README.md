@@ -102,6 +102,19 @@ const array = [
 console.log(splitByKeyValue(array, 'name')) // Output: [[{ id: 1, name: 'Alice' }, { id: 3, name: 'Alice' }], [{ id: 2, name: 'Bob' }]]
 ```
 
+### `createBalancedArray`
+
+Creates an array of a specified length where the sum of all elements equals a given sum. The function distributes the sum evenly across the array elements. If the sum is negative, the function creates an array of negative numbers. If the sum cannot be evenly distributed, the function distributes the remainder as evenly as possible. If the length is zero or negative, the function returns an empty array.
+
+```typescript
+import { createBalancedArray } from '@plq/array-functions'
+
+console.log(createBalancedArray(5, 10)); // Output: [2, 2, 2, 2, 2]
+console.log(createBalancedArray(3, -5)); // Output: [-2, -2, -1]
+console.log(createBalancedArray(0, 10)); // Output: []
+console.log(createBalancedArray(-3, 10)); // Output: []
+```
+
 ## Development
 
 ### Install dependencies

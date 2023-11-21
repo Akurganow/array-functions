@@ -212,3 +212,5 @@ export function splitByKeyValue<T extends { [k in string]: unknown }>(arr: T[], 
 
 	return Object.values(groups)
 }
+
+export { default as createBalancedArray } from './create-balanced-array'
