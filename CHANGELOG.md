@@ -1,5 +1,12 @@
 
 
+## [1.5.0](https://github.com/Akurganow/array-functions/compare/1.4.0...1.5.0) (2023-11-21)
+
+
+### Features
+
+* add createBalancedArray function ([6916692](https://github.com/Akurganow/array-functions/commit/69166923de8868934539e393787eff1b66b78a9e))
+
 ## [1.4.0](https://github.com/Akurganow/array-functions/compare/1.3.0...1.4.0) (2023-11-20)
 
 
