@@ -1,4 +1,5 @@
-import { sortBy, getKeyValue } from '../src'
+import getKeyValue from '../src/getKeyValue'
+import sortBy from '../src/sortBy'
 
 describe('sortBy', () => {
 	test('empty', () => {

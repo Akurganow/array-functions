@@ -1,4 +1,4 @@
-import { splitByKeyValue } from '../src'
+import splitByKeyValue from '../src/splitByKeyValue'
 
 describe('splitByKeyValue', () => {
 	test('splits an array of objects into subarrays with the same value of the given key', () => {

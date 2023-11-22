@@ -1,4 +1,4 @@
-import createBalancedArray from '../src/create-balanced-array'
+import createBalancedArray from '../src/createBalancedArray'
 
 describe('createBalancedArray', () => {
 	test('should be defined', () => {
@@ -50,6 +50,11 @@ describe('createBalancedArray', () => {
 
 	test('should correctly distribute small negative sums', () => {
 		expect(createBalancedArray(3, -2)).toEqual([-1, -1, 0])
+	})
+
+	test('should correctly handle large differences between length and sum', () => {
+		expect(createBalancedArray(13, 144)).toEqual([12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11])
+		expect(createBalancedArray(3, 487)).toEqual([163, 162, 162])
 	})
 
 	test('should maintain sum with large numbers', () => {

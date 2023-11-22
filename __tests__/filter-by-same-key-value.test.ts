@@ -1,4 +1,4 @@
-import { filterBySameKeyValue } from '../src'
+import filterBySameKeyValue from '../src/filterBySameKeyValue'
 
 describe('filterBySameValue', () => {
 	test('should filter by same value', () => {

@@ -1,4 +1,4 @@
-import { getKeyValue } from '../src'
+import getKeyValue from '../src/getKeyValue'
 
 describe('getKeyValue', () => {
 	test('getKeyValue', () => {

@@ -1,4 +1,4 @@
-import { getUniqueValues } from '../src'
+import getUniqueValues from '../src/getUniqueValues'
 
 describe('getUniqueValues', () => {
 	test('string', () => {

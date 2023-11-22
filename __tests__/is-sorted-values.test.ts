@@ -1,4 +1,4 @@
-import { isSortedValues } from '../src'
+import isSortedValues from '../src/isSortedValues'
 
 describe('isSortedValues', () => {
 	test('empty', () => {

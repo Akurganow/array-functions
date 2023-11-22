@@ -7,8 +7,7 @@
 
 		/* Modules */
 		"module": "node16",
-		"baseUrl": ".",
-		"rootDir": "./src",
+		"baseUrl": "./src",
 		"moduleResolution": "node16",
 
 		/* JavaScript Support */

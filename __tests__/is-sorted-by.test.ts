@@ -1,4 +1,4 @@
-import { isSortedBy } from '../src'
+import isSortedBy from '../src/isSortedBy'
 
 describe('isSortedBy', () => {
 	test('empty', () => {

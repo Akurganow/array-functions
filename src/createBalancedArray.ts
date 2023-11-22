@@ -1,9 +1,9 @@
 /**
  * Creates an array of a specified length where the sum of all elements equals a given sum.
  * The function distributes the sum evenly across the array elements.
- * If the sum is negative, the function creates an array of negative numbers.
- * If the sum cannot be evenly distributed, the function distributes the remainder as evenly as possible.
- * If the length is zero or negative, the function returns an empty array.
+ * - If the sum is negative, the function creates an array of negative numbers.
+ * - If the sum cannot be evenly distributed, the function distributes the remainder as evenly as possible.
+ * - If the length is zero or negative, the function returns an empty array.
  *
  * @param {number} length - The length of the array to be created.
  * @param {number} sum - The sum of all elements in the array.
