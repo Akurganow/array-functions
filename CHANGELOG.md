@@ -1,5 +1,7 @@
 
 
+## [1.5.1](https://github.com/Akurganow/array-functions/compare/1.5.0...1.5.1) (2023-11-22)
+
 ## [1.5.0](https://github.com/Akurganow/array-functions/compare/1.4.0...1.5.0) (2023-11-21)
 
 

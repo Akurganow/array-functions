@@ -1,6 +1,6 @@
 {
 	"name": "@plq/array-functions",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"description": "A set of frequently used functions for working with arrays, for sorting, filtering or checking the state of an array",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
