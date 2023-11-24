@@ -1,6 +1,6 @@
 import { Sortable, SortableKey, SortableOrder } from './types'
 import { DEFAULT_ORDER } from './constants'
-import { isObject } from '@plq/is'
+import { isFunction, isObject } from '@plq/is'
 
 import isSortedValues from './isSortedValues'
 
@@ -18,11 +18,11 @@ import isSortedValues from './isSortedValues'
 export default function isSortedBy<T extends Sortable<T>>(array: T[], key: SortableKey<T>, order: SortableOrder = DEFAULT_ORDER): boolean {
 	if (array.length <= 1) return true
 
-	if (!isObject(array[0])) throw new Error(`Array is not an array of objects. (${typeof array[0]})`)
+	if (array.some(item => !isObject(item))) throw new Error('Array is not an array of objects.')
 
 	const mapped = (array as Sortable<T>[])
 		.map(item => {
-			if (typeof item[key] === 'function') {
+			if (isFunction(item[key])) {
 				return (item[key] as (() => string | number))() as string | number
 			} else {
 				return item[key] as unknown as string | number

@@ -24,7 +24,7 @@ describe('isSortedBy', () => {
 	test('not an array of objects', () => {
 		const items = ['a', 'b', 'c'] as unknown as Array<{ id: string }>
 
-		expect(() => isSortedBy(items, 'id')).toThrowErrorMatchingInlineSnapshot('"Array is not an array of objects. (string)"')
+		expect(() => isSortedBy(items, 'id')).toThrowErrorMatchingInlineSnapshot('"Array is not an array of objects."')
 	})
 	test('string', () => {
 		const itemsAsc = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]

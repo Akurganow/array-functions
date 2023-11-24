@@ -1,6 +1,6 @@
 import filterBySameKeyValue from '../src/filterBySameKeyValue'
 
-describe('filterBySameValue', () => {
+describe('filterBySameKeyValue', () => {
 	test('should filter by same value', () => {
 		function filterBySameId<T extends { id: string }>(item: T, index: number, array: T[]) {
 			return filterBySameKeyValue<T>(item, index, array, 'id')
