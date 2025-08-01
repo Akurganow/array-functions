@@ -18,7 +18,7 @@
 		"declarationMap": true,
 		"sourceMap": true,
 		"outDir": "lib",
-		"newLine": "crlf",
+		"newLine": "lf",
 
 		/* Interop Constraints */
 		"esModuleInterop": true,
