@@ -149,6 +149,17 @@ We use [TypeScript](https://www.typescriptlang.org/) to build our code.
 npm run build
 ```
 
+### GitHub Copilot
+
+This repository includes a configured GitHub Copilot setup via `.github/copilot.yml` to provide enhanced code suggestions. The configuration includes:
+
+- **Repository context**: Understands this is a TypeScript array utility library
+- **File patterns**: Focuses on source files (`src/`) and tests (`__tests__/`)
+- **Code guidelines**: Promotes functional programming, type safety, and comprehensive testing
+- **Custom instructions**: Provides specific guidance for maintaining code quality and consistency
+
+The Copilot configuration helps ensure generated code follows the project's patterns and best practices.
+
 ### Dev check list
 
 - [ ] Add new file to `src` folder like `function-name.ts`

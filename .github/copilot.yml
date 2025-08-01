@@ -1,0 +1,95 @@
+# GitHub Copilot configuration for array-functions library
+# This configuration helps Copilot understand the context and provide better suggestions
+
+# Repository context
+knowledge_base:
+  description: |
+    A TypeScript utility library providing frequently used functions for working with arrays.
+    Focuses on sorting, filtering, and checking the state of arrays with type safety.
+    
+    Core principles:
+    - Functional programming approach
+    - Type safety with TypeScript
+    - Comprehensive test coverage
+    - Pure functions without side effects
+    - Clear, descriptive function names
+    
+    Key functions include:
+    - sortBy: Sort arrays of objects by a given key
+    - filterBySameKeyValue: Filter arrays to unique values by key
+    - getKeyValue: Extract values from object arrays by key
+    - isSorted: Check if arrays are sorted by key
+    - getUniqueValues: Get unique values from object arrays
+    - splitByKeyValue: Split arrays into subarrays by key value
+    - createBalancedArray: Create balanced arrays with specific sums
+
+# File patterns for Copilot to focus on
+include:
+  - "src/**/*.ts"
+  - "__tests__/**/*.ts"
+  - "*.md"
+
+# File patterns for Copilot to ignore
+exclude:
+  - "lib/**/*"
+  - "node_modules/**/*"
+  - "coverage/**/*"
+  - "*.log"
+  - "*.lock"
+  - ".git/**/*"
+  - ".cache/**/*"
+  - "dist/**/*"
+
+# Language-specific configuration
+languages:
+  typescript:
+    # Prefer TypeScript patterns and best practices
+    patterns:
+      - "Use strict TypeScript typing"
+      - "Prefer readonly arrays when appropriate"
+      - "Use generic types for reusable functions"
+      - "Include comprehensive JSDoc comments"
+      - "Follow existing code style and patterns"
+    
+    # Code generation preferences
+    preferences:
+      - "Generate pure functions without side effects"
+      - "Include input validation using @plq/is library"
+      - "Write comprehensive Jest test cases"
+      - "Use descriptive variable and function names"
+      - "Maintain consistent error handling patterns"
+
+# Custom instructions for code generation
+instructions: |
+  When working with this codebase:
+  
+  1. **Function Design**:
+     - Create pure functions that don't mutate input arrays
+     - Use generic types to support various data types
+     - Include proper input validation
+     - Return meaningful results or throw descriptive errors
+  
+  2. **Testing**:
+     - Write comprehensive Jest tests for all functions
+     - Include edge cases: empty arrays, null/undefined values
+     - Test both valid and invalid inputs
+     - Maintain 100% code coverage
+  
+  3. **Code Style**:
+     - Follow the existing ESLint configuration
+     - Use camelCase for function and variable names
+     - Include JSDoc comments with examples
+     - Export functions with clear, descriptive names
+  
+  4. **Dependencies**:
+     - Use @plq/is library for type checking
+     - Avoid adding new dependencies unless absolutely necessary
+     - Prefer built-in JavaScript/TypeScript features
+  
+  5. **Documentation**:
+     - Update README.md with new functions
+     - Include usage examples in JSDoc comments
+     - Add functions to the main index.ts export file
+
+# Version of the Copilot configuration schema
+version: 1
