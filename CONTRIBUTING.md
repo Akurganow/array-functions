@@ -105,11 +105,13 @@ part that can fail after the tag exists can simply be re-run:
    `@release-it/conventional-changelog`, updates `CHANGELOG.md`, commits, tags and pushes to `main`. `chore`, `docs`
    and similar commits alone do not produce a release, and release-it exits without doing anything when there is
    nothing to release. The release commit it pushes contains nothing releasable, so the run it triggers is a no-op.
-2. [`Publish`](./.github/workflows/publish.yml) runs when that tag is pushed: `npm publish` through
-   [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (provenance is attached automatically, no npm
-   token is stored anywhere), then `release-it --no-increment` creates the GitHub release for the tag from the same
-   conventional commits. The run refuses a tag whose commit is not on `main` or whose name is not the version in
-   `package.json`. Both steps are safe to repeat: a version that is already on the registry and a GitHub release
+2. [`Publish`](./.github/workflows/publish.yml) runs when that tag is pushed, in three jobs so that no repository
+   code ever runs next to a credential: `build` (no token at all) refuses a tag whose commit is not on `main` or
+   whose name is not the version in `package.json`, then runs `npm ci` and `npm pack`; `publish` (the only job that
+   may mint an OIDC token, no checkout, no scripts) uploads that tarball through
+   [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), which attaches provenance automatically and
+   needs no npm token; `github-release` (`contents: write`, no OIDC) runs `release-it --no-increment` to create the
+   GitHub release for the tag from the same conventional commits. Both publishing steps are safe to repeat: a version that is already on the registry and a GitHub release
    that already exists are skipped, so a failed run is fixed by re-running it from the Actions tab. The `latest`
    dist-tag only ever moves forward: a version below the highest one already on the registry is published under
    the `legacy` dist-tag. Publish runs execute one at a time; GitHub keeps only one queued run per workflow, so if
