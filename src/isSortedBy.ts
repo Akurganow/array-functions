@@ -1,33 +1,38 @@
-import { Sortable, SortableKey, SortableOrder } from './types'
 import { DEFAULT_ORDER } from './constants'
-import { isFunction, isObject } from '@plq/is'
-
+import { isObject, resolveSortableValue } from './internal'
 import isSortedValues from './isSortedValues'
+import type { SortableKey, SortableOrder, SortableValue } from './types'
 
 /**
- * Checks if an array of objects is sorted by a given key.
- * @template T The type of the object.
- * @param {T[]} array The array of objects.
- * @param {SortableKey<T>} key The key to check by.
- * @param {SortableOrder} [order='desc'] The order of sorting.
- * @returns {boolean} Whether the array is sorted by the key.
+ * Checks whether an array of objects is sorted by the given key.
+ *
+ * When the value under `key` is a function it is called with the object as `this` and its return value is compared.
+ * Empty and single-element arrays are always sorted.
+ * `NaN` never compares as sorted against a neighbour, so an array of two or more elements that contains `NaN`
+ * is never considered sorted (a single-element array is). Values of unsupported types compare as equal.
+ *
+ * @param array The objects to check.
+ * @param key The key to compare by. Its value must be a `string`, a `number`, or a getter returning one.
+ * @param order The expected sorting direction. Defaults to `'desc'`.
+ * @returns `true` if the objects are sorted by `key`.
+ * @throws {TypeError} If `array` contains a non-object, or if two neighbouring values have different types.
  *
  * @example
- * isSortedBy([{ id: 1 }, { id: 2 }], 'id', 'asc'); // Output: true
+ * isSortedBy([{ id: 1 }, { id: 2 }], 'id', 'asc') // true
+ * isSortedBy([{ id: 1 }, { id: 2 }], 'id') // false, the default order is 'desc'
  */
-export default function isSortedBy<T extends Sortable<T>>(array: T[], key: SortableKey<T>, order: SortableOrder = DEFAULT_ORDER): boolean {
+export default function isSortedBy<T extends object>(
+	array: readonly T[],
+	key: SortableKey<T>,
+	order: SortableOrder = DEFAULT_ORDER,
+): boolean {
 	if (array.length <= 1) return true
 
-	if (array.some(item => !isObject(item))) throw new Error('Array is not an array of objects.')
+	if (array.some(item => !isObject(item))) {
+		throw new TypeError('Array is not an array of objects.')
+	}
 
-	const mapped = (array as Sortable<T>[])
-		.map(item => {
-			if (isFunction(item[key])) {
-				return (item[key] as (() => string | number))() as string | number
-			} else {
-				return item[key] as unknown as string | number
-			}
-		})
+	const values = array.map(item => resolveSortableValue(item, key) as SortableValue)
 
-	return isSortedValues(mapped, order)
+	return isSortedValues(values, order)
 }

@@ -1,18 +1,16 @@
 /**
- * Returns an array of unique values from an array of objects.
- * @template T The type of the object.
- * @param {T[]} arr The array of objects.
- * @param {keyof T} key The key to get unique values by.
- * @returns {T[keyof T][]} The array of unique values.
+ * Returns the distinct values of the given key from an array of objects.
+ *
+ * Values are compared with the same-value-zero algorithm used by `Set`, so objects are distinct by reference
+ * and `NaN` is equal to `NaN`. The first occurrence of each value decides its position in the result.
+ *
+ * @param arr The objects to read from.
+ * @param key The key to read.
+ * @returns The distinct values, in order of first appearance.
  *
  * @example
- * const array = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Alice' }];
- * getUniqueValues(array, 'name'); // Output: ['Alice']
+ * getUniqueValues([{ name: 'Alice' }, { name: 'Bob' }, { name: 'Alice' }], 'name') // ['Alice', 'Bob']
  */
-export default function getUniqueValues<T extends { [k in string]: unknown }>(arr: T[], key: keyof T): T[keyof T][] {
-	const uniqueValues = new Set<T[keyof T]>()
-
-	arr.forEach(item => uniqueValues.add(item[key]))
-
-	return Array.from(uniqueValues)
+export default function getUniqueValues<T extends object, K extends keyof T>(arr: readonly T[], key: K): T[K][] {
+	return [...new Set(arr.map(item => item[key]))]
 }

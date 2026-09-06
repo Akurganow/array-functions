@@ -1,28 +1,44 @@
+import { describe, expect, test } from 'vitest'
 import filterBySameKeyValue from '../src/filterBySameKeyValue'
 
 describe('filterBySameKeyValue', () => {
-	test('should filter by same value', () => {
-		function filterBySameId<T extends { id: string }>(item: T, index: number, array: T[]) {
-			return filterBySameKeyValue<T>(item, index, array, 'id')
-		}
+	test('keeps the first object for each value of the key', () => {
+		const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'a' }, { id: 'b' }, { id: 'c' }]
 
+		const filtered = items.filter((item, index, all) => filterBySameKeyValue(item, index, all, 'id'))
+
+		expect(filtered).toEqual([items[0], items[1], items[2]])
+		expect(filtered[0]).toBe(items[0])
+	})
+
+	test('distinguishes values by strict equality', () => {
+		const items = [{ id: 1 }, { id: '1' }, { id: 1 }]
+
+		const filtered = items.filter((item, index, all) => filterBySameKeyValue(item, index, all, 'id'))
+
+		expect(filtered).toEqual([{ id: 1 }, { id: '1' }])
+	})
+
+	test('works with a pre-bound key', () => {
+		const byName = <T extends { name: string }>(item: T, index: number, all: T[]) =>
+			filterBySameKeyValue(item, index, all, 'name')
 		const items = [
-			{ id: 'a' },
-			{ id: 'b' },
-			{ id: 'c' },
-			{ id: 'a' },
-			{ id: 'b' },
-			{ id: 'c' },
+			{ id: 1, name: 'Alice' },
+			{ id: 2, name: 'Bob' },
+			{ id: 3, name: 'Alice' },
 		]
 
-		const filtered = items.filter(filterBySameId)
+		expect(items.filter(byName)).toEqual([
+			{ id: 1, name: 'Alice' },
+			{ id: 2, name: 'Bob' },
+		])
+	})
 
-		expect(filtered).toHaveLength(3)
-		expect(filtered).toContain(items[0])
-		expect(filtered).toContain(items[1])
-		expect(filtered).toContain(items[2])
-		expect(filtered).not.toContain(items[3])
-		expect(filtered).not.toContain(items[4])
-		expect(filtered).not.toContain(items[5])
+	test('keeps every object of an empty or unique array', () => {
+		expect([].filter((item, index, all) => filterBySameKeyValue(item, index, all, 'id'))).toEqual([])
+
+		const unique = [{ id: 1 }, { id: 2 }]
+
+		expect(unique.filter((item, index, all) => filterBySameKeyValue(item, index, all, 'id'))).toEqual(unique)
 	})
 })

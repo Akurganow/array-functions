@@ -1,32 +1,38 @@
-import { Sortable, SortableKey, SortableOrder } from './types'
-import { DEFAULT_ORDER } from './constants'
 import compareValues from './compareValues'
+import { DEFAULT_ORDER } from './constants'
+import { resolveSortableValue } from './internal'
+import type { SortableKey, SortableOrder, SortableValue } from './types'
 
 /**
- * Sorts an array of objects by a given key.
- * @template T The type of the object.
- * @param {T[]} items The array of objects.
- * @param {SortableKey<T>} key The key to sort by.
- * @param {SortableOrder} [order='desc'] The order of sorting.
- * @returns {T[]} The sorted array.
+ * Returns a new array with the objects sorted by the given key.
+ *
+ * The input array is not modified. The sort is stable, so objects with equal values keep their relative order.
+ * When the value under `key` is a function it is called with the object as `this` and its return value is compared.
+ * `NaN` values compare equal to everything, so their position in the result is unspecified (as in 1.x).
+ *
+ * @param items The objects to sort.
+ * @param key The key to sort by. Its value must be a `string`, a `number`, or a getter returning one.
+ * @param order The sorting direction. Defaults to `'desc'`.
+ * @returns A new, sorted array.
+ * @throws {TypeError} If two compared values have different types.
  *
  * @example
- * sortBy([{ id: 2 }, { id: 1 }], 'id', 'asc'); // Output: [{ id: 1 }, { id: 2 }]
+ * sortBy([{ id: 2 }, { id: 1 }], 'id', 'asc') // [{ id: 1 }, { id: 2 }]
+ * sortBy([{ id: 1 }, { id: 2 }], 'id') // [{ id: 2 }, { id: 1 }]
  */
-export default function sortBy<T extends Sortable<T>>(items: T[], key: SortableKey<T>, order: SortableOrder = DEFAULT_ORDER): T[] {
-	if (items.length <= 1) return items
+export default function sortBy<T extends object>(
+	items: readonly T[],
+	key: SortableKey<T>,
+	order: SortableOrder = DEFAULT_ORDER,
+): T[] {
+	return [...items].sort((a, b) => {
+		const aValue = resolveSortableValue(a, key)
+		const bValue = resolveSortableValue(b, key)
 
-	return items.sort((a, b) => {
-		if (typeof a[key] !== typeof b[key]) throw new Error(`Types are not equal (a: ${typeof a[key]}, b: ${typeof b[key]})`)
-
-		let aValue = a[key] as string | number
-		let bValue = b[key] as string | number
-
-		if (typeof aValue === 'function' && typeof bValue === 'function') {
-			aValue = (aValue as (() => string | number))()
-			bValue = (bValue as (() => string | number))()
+		if (typeof aValue !== typeof bValue) {
+			throw new TypeError(`Types are not equal (a: ${typeof aValue}, b: ${typeof bValue})`)
 		}
 
-		return compareValues(aValue, bValue, order)
+		return compareValues(aValue as SortableValue, bValue as SortableValue, order)
 	})
 }

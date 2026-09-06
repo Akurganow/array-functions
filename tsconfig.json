@@ -1,46 +1,36 @@
 {
 	"compilerOptions": {
-		/* Visit https://aka.ms/tsconfig to read more about this file */
+		/* Language and environment */
+		"target": "es2022",
+		"lib": ["es2022"],
+		"module": "preserve",
+		"moduleResolution": "bundler",
+		"types": [],
 
-		/* Language and Environment */
-		"target": "esnext",
-
-		/* Modules */
-		"module": "node16",
-		"baseUrl": "./src",
-		"moduleResolution": "node16",
-
-		/* JavaScript Support */
-		"allowJs": false,
-
-		/* Emit */
+		/* Emit is handled by tsdown; tsc is only used for type-checking */
+		"noEmit": true,
 		"declaration": true,
-		"declarationMap": true,
-		"sourceMap": true,
-		"outDir": "lib",
-		"newLine": "lf",
+		"isolatedDeclarations": true,
+		"declarationMap": false,
 
-		/* Interop Constraints */
+		/* Interop */
 		"esModuleInterop": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
 		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
 
-		/* Type Checking */
+		/* Type checking */
 		"strict": true,
-		"noImplicitAny": true,
-		"strictNullChecks": true,
-		"strictFunctionTypes": true,
-		"strictBindCallApply": true,
-		"strictPropertyInitialization": true,
-		"noImplicitThis": true,
-		"alwaysStrict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
+		"exactOptionalPropertyTypes": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
 		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
 	},
-	"include": ["src/**/*.ts"],
-	"exclude": [
-		"node_modules",
-		"__tests__"
-	]
+	"include": ["src/**/*.ts", "__tests__/**/*.ts", "*.config.ts"],
+	"exclude": ["node_modules", "dist", "coverage"]
 }
