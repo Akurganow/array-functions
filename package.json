@@ -82,7 +82,11 @@
 			"requireCleanWorkingDir": true,
 			"requireBranch": "main",
 			"requireCommits": true,
-			"requireCommitsFail": false
+			"requireCommitsFail": false,
+			"pushArgs": [
+				"--follow-tags",
+				"--atomic"
+			]
 		},
 		"github": {
 			"release": true,
