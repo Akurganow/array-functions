@@ -1,24 +1,31 @@
-name: Publish
+name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
-  publish:
-    name: Publish to npm
+  release:
+    name: Release and publish to npm
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: npm
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
+          # release-it pushes the version commit and the tag back to main, so the token must stay.
+          persist-credentials: true
+          # release-it and the conventional-changelog plugin need the tags and the full history.
+          fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .node-version
@@ -28,7 +35,13 @@ jobs:
       - name: Check npm version
         run: test "$(printf '%s\n11.5.1\n' "$(npm -v)" | sort -V | head -1)" = "11.5.1"
       - run: npm ci
-      # The build itself runs in `prepack` as part of `npm publish`.
-      - run: npx biome ci --error-on-warnings . && npm run typecheck && npm test
-      - name: Publish with provenance
-        run: npm publish --provenance --access public
+      - name: Configure the git user for the release commit
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      # release-it runs `npm run check`, bumps the version from the conventional commits, updates CHANGELOG.md,
+      # commits, tags, creates the GitHub release and publishes to npm through trusted publishing (OIDC).
+      # With nothing releasable since the last tag it exits 0 without doing anything.
+      - run: npx release-it --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

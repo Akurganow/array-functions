@@ -97,17 +97,19 @@ A `feat` bumps the minor version, a `fix` the patch version, and a `BREAKING CHA
 
 ## Releasing
 
-Releases are cut from `main` with [release-it](https://github.com/release-it/release-it):
+Releases are automatic. Every push to `main` runs the [`Release`](./.github/workflows/publish.yml) workflow, which is
+a plain [release-it](https://github.com/release-it/release-it) run in CI mode:
 
-```bash
-cp .env.example .env   # add a GitHub token with `repo` scope
-npm run release
-```
+1. `npm run check` (the `before:init` hook);
+2. the version bump is computed from the conventional commits since the last tag by
+   `@release-it/conventional-changelog`; `chore`, `docs` and similar commits alone do not produce a release, and
+   release-it exits without doing anything when there is nothing to release;
+3. `CHANGELOG.md` is updated, the version commit and the tag are pushed, and the GitHub release is created;
+4. the package is published with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), which attaches
+   provenance automatically. No npm token is stored anywhere.
 
-release-it runs `npm run check`, bumps the version, updates `CHANGELOG.md`, creates a git tag and publishes a GitHub
-release. Publishing the release triggers the [`Publish`](./.github/workflows/publish.yml) workflow, which builds the
-package again and runs `npm publish --provenance` using
-[npm trusted publishing](https://docs.npmjs.com/trusted-publishers). No npm token is stored anywhere.
+A release therefore consists of merging a pull request. `npm run release` runs the same thing from a machine with a
+GitHub token in `.env` (see `.env.example`), but publishing to npm from a machine needs an npm login, so prefer CI.
 
 One-time setup for trusted publishing: on npmjs.com, open the package settings, add a **GitHub Actions** trusted
 publisher for `Akurganow/array-functions` with the workflow file `publish.yml` and the environment `npm`, and create a
