@@ -97,18 +97,40 @@ A `feat` bumps the minor version, a `fix` the patch version, and a `BREAKING CHA
 
 ## Releasing
 
-Releases are cut from `main` with [release-it](https://github.com/release-it/release-it):
+Releases are automatic and split into two [release-it](https://github.com/release-it/release-it) runs, so that the
+part that can fail after the tag exists can simply be re-run:
 
-```bash
-cp .env.example .env   # add a GitHub token with `repo` scope
-npm run release
-```
+1. [`Release`](./.github/workflows/release.yml) runs on every push to `main`: `npm ci` and `npm run check` first,
+   then `release-it --ci` computes the bump from the conventional commits since the last tag with
+   `@release-it/conventional-changelog`, updates `CHANGELOG.md`, commits, tags and pushes to `main`. `chore`, `docs`
+   and similar commits alone do not produce a release, and release-it exits without doing anything when there is
+   nothing to release. The release commit it pushes contains nothing releasable, so the run it triggers is a no-op.
+2. [`Publish`](./.github/workflows/publish.yml) runs when that tag is pushed, in three jobs so that no repository
+   code ever runs next to a credential: `build` (no token at all) refuses a tag whose commit is not on `main` or
+   whose name is not the version in `package.json`, then runs `npm ci` and `npm pack`; `publish` (the only job that
+   may mint an OIDC token, no checkout, no scripts) uploads that tarball through
+   [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), which attaches provenance automatically and
+   needs no npm token; `github-release` (`contents: write`, no OIDC) runs `release-it --no-increment` to create the
+   GitHub release for the tag from the same conventional commits. Both publishing steps are safe to repeat: a version that is already on the registry and a GitHub release
+   that already exists are skipped, so a failed run is fixed by re-running it from the Actions tab. The `latest`
+   dist-tag only ever moves forward: a version below the highest one already on the registry is published under
+   the `legacy` dist-tag. Publish runs execute one at a time; GitHub keeps only one queued run per workflow, so if
+   a publish is held up while several tags arrive, re-run the cancelled one.
 
-release-it runs `npm run check`, bumps the version, updates `CHANGELOG.md`, creates a git tag and publishes a GitHub
-release. Publishing the release triggers the [`Publish`](./.github/workflows/publish.yml) workflow, which builds the
-package again and runs `npm publish --provenance` using
-[npm trusted publishing](https://docs.npmjs.com/trusted-publishers). No npm token is stored anywhere.
+A release therefore consists of merging a pull request. `npm run release` runs the same release-it configuration
+from a machine with a GitHub token in `.env` (see `.env.example`); it pushes the tag and creates the GitHub release,
+and the `Publish` workflow still does the npm publish, so the package is always published with provenance from CI.
 
-One-time setup for trusted publishing: on npmjs.com, open the package settings, add a **GitHub Actions** trusted
-publisher for `Akurganow/array-functions` with the workflow file `publish.yml` and the environment `npm`, and create a
-matching `npm` environment in the GitHub repository settings.
+One-time setup:
+
+- **npm trusted publishing**: on npmjs.com, open the package settings, add a **GitHub Actions** trusted publisher for
+  `Akurganow/array-functions` with the workflow file `publish.yml` and the environment `npm`, and create a matching
+  `npm` environment in the GitHub repository settings.
+- **`RELEASE_TOKEN`**: `main` is protected, and the default `GITHUB_TOKEN` cannot push the release commit and tag to
+  it. Create a fine-grained personal access token restricted to this repository with *Contents: read and write* and
+  nothing else (the token owner must be allowed to bypass the branch rule) and store it as the `RELEASE_TOKEN`
+  repository secret. The `Release` workflow hands it to git only for the push step, after dependencies are installed
+  and the checks have run; the GitHub release and the npm publish do not use it.
+- **Tag protection** (recommended): add a ruleset for tags matching `*.*.*` that lets only the owner of
+  `RELEASE_TOKEN` create them. The `Publish` workflow already refuses a tag whose commit is not on `main`; the
+  ruleset keeps hand-made release tags from being pushed in the first place.

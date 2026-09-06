@@ -80,20 +80,26 @@
 	"release-it": {
 		"git": {
 			"requireCleanWorkingDir": true,
-			"requireBranch": "main"
+			"requireBranch": "main",
+			"requireCommits": true,
+			"requireCommitsFail": false,
+			"pushArgs": [
+				"--follow-tags",
+				"--atomic"
+			]
 		},
 		"github": {
 			"release": true,
 			"releaseName": "${version}"
 		},
 		"npm": {
-			"publish": false
+			"publish": false,
+			"skipChecks": true
 		},
 		"hooks": {
 			"before:init": [
 				"npm run check"
-			],
-			"after:release": "echo Released ${name} v${version}. The publish workflow will push it to npm."
+			]
 		},
 		"plugins": {
 			"@release-it/conventional-changelog": {
