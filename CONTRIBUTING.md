@@ -108,10 +108,12 @@ part that can fail after the tag exists can simply be re-run:
 2. [`Publish`](./.github/workflows/publish.yml) runs when that tag is pushed: `npm publish` through
    [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (provenance is attached automatically, no npm
    token is stored anywhere), then `release-it --no-increment` creates the GitHub release for the tag from the same
-   conventional commits. The run refuses a tag that does not match the version in `package.json`, and both steps
-   are safe to repeat: a version that is already on the registry and a GitHub release that already exists are
-   skipped, so a failed run is fixed by re-running it from the Actions tab. Publish runs are serialised, so an
-   older version can never overtake a newer one on the `latest` dist-tag.
+   conventional commits. The run refuses a tag whose commit is not on `main` or whose name is not the version in
+   `package.json`. Both steps are safe to repeat: a version that is already on the registry and a GitHub release
+   that already exists are skipped, so a failed run is fixed by re-running it from the Actions tab. The `latest`
+   dist-tag only ever moves forward: a version below the highest one already on the registry is published under
+   the `legacy` dist-tag. Publish runs execute one at a time; GitHub keeps only one queued run per workflow, so if
+   a publish is held up while several tags arrive, re-run the cancelled one.
 
 A release therefore consists of merging a pull request. `npm run release` runs the same release-it configuration
 from a machine with a GitHub token in `.env` (see `.env.example`); it pushes the tag and creates the GitHub release,
@@ -127,3 +129,6 @@ One-time setup:
   nothing else (the token owner must be allowed to bypass the branch rule) and store it as the `RELEASE_TOKEN`
   repository secret. The `Release` workflow hands it to git only for the push step, after dependencies are installed
   and the checks have run; the GitHub release and the npm publish do not use it.
+- **Tag protection** (recommended): add a ruleset for tags matching `*.*.*` that lets only the owner of
+  `RELEASE_TOKEN` create them. The `Publish` workflow already refuses a tag whose commit is not on `main`; the
+  ruleset keeps hand-made release tags from being pushed in the first place.
