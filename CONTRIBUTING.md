@@ -107,10 +107,11 @@ part that can fail after the tag exists can simply be re-run:
    nothing to release. The release commit it pushes contains nothing releasable, so the run it triggers is a no-op.
 2. [`Publish`](./.github/workflows/publish.yml) runs when that tag is pushed: `npm publish` through
    [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (provenance is attached automatically, no npm
-   token is stored anywhere), then `release-it --no-increment --github.update` creates the GitHub release for the
-   tag from the same conventional commits. Both steps are safe to repeat: a version that is already on the registry
-   is skipped and an existing GitHub release is updated, so a failed run is fixed by re-running it from the Actions
-   tab.
+   token is stored anywhere), then `release-it --no-increment` creates the GitHub release for the tag from the same
+   conventional commits. The run refuses a tag that does not match the version in `package.json`, and both steps
+   are safe to repeat: a version that is already on the registry and a GitHub release that already exists are
+   skipped, so a failed run is fixed by re-running it from the Actions tab. Publish runs are serialised, so an
+   older version can never overtake a newer one on the `latest` dist-tag.
 
 A release therefore consists of merging a pull request. `npm run release` runs the same release-it configuration
 from a machine with a GitHub token in `.env` (see `.env.example`); it pushes the tag and creates the GitHub release,
