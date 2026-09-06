@@ -1,4 +1,20 @@
+# Changelog
 
+## [2.0.0](https://github.com/Akurganow/array-functions/compare/1.5.1...2.0.0) (2026-09-06)
+
+### ⚠ BREAKING CHANGES
+
+* `compareValues` returns `0` for two values of different types; previously the result depended on `typeof a` and could throw for `'desc'`.
+* `createBalancedArray` throws a `RangeError` for a non-integer `sum` (including `NaN` and `Infinity`); previously it returned an array whose total did not match `sum`.
+* `engines.node` is now `>=22` (was `>=16`); Node.js 16, 18 and 20 are no longer supported.
+* `SortableKey<T>` excludes optional keys and keys whose value may be `undefined`, so `sortBy`/`isSortedBy` by such a key no longer type-check; narrow the element type first, e.g. `items.filter((item): item is Item & Required<Pick<Item, 'label'>> => item.label !== undefined)`.
+* `sortBy` returns a new array instead of sorting its input in place; code that relied on the argument being mutated must use the return value.
+* `splitByKeyValue` groups by strict value (same-value-zero, like `Map`) instead of `String(value)`: `1` and `'1'` are separate groups, objects are grouped by reference, and groups are ordered by first appearance instead of `Object.values` key order.
+* the package ships a single `dist/` entry (ESM + CJS) with an `exports` map; deep imports such as `@plq/array-functions/lib/sortBy` are no longer available.
+
+### Miscellaneous Chores
+
+* modernize toolchain, add Node/Bun CI matrix and refresh docs ([11e242d](https://github.com/Akurganow/array-functions/commit/11e242d4c308f01dec662d4ec9db23667fa75e80))
 
 ## [1.5.1](https://github.com/Akurganow/array-functions/compare/1.5.0...1.5.1) (2023-11-22)
 
