@@ -89,13 +89,14 @@
 			"releaseName": "${version}"
 		},
 		"npm": {
-			"publish": true,
+			"publish": false,
 			"skipChecks": true
 		},
 		"hooks": {
 			"before:init": [
 				"npm run check"
-			]
+			],
+			"after:release": "npm publish"
 		},
 		"plugins": {
 			"@release-it/conventional-changelog": {

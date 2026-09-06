@@ -22,7 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # release-it pushes the version commit and the tag back to main, so the token must stay.
+          # `main` is protected, so the release commit and tag are pushed with a personal access token whose owner is
+          # allowed to bypass the branch rule. The default GITHUB_TOKEN cannot push to a protected branch.
+          token: ${{ secrets.RELEASE_TOKEN }}
           persist-credentials: true
           # release-it and the conventional-changelog plugin need the tags and the full history.
           fetch-depth: 0
@@ -40,8 +42,9 @@ jobs:
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       # release-it runs `npm run check`, bumps the version from the conventional commits, updates CHANGELOG.md,
-      # commits, tags, creates the GitHub release and publishes to npm through trusted publishing (OIDC).
+      # commits, tags, pushes to main and creates the GitHub release. Only then the `after:release` hook publishes
+      # to npm through trusted publishing (OIDC), so a rejected push fails the run before anything reaches npm.
       # With nothing releasable since the last tag it exits 0 without doing anything.
       - run: npx release-it --ci
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

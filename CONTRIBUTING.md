@@ -104,13 +104,21 @@ a plain [release-it](https://github.com/release-it/release-it) run in CI mode:
 2. the version bump is computed from the conventional commits since the last tag by
    `@release-it/conventional-changelog`; `chore`, `docs` and similar commits alone do not produce a release, and
    release-it exits without doing anything when there is nothing to release;
-3. `CHANGELOG.md` is updated, the version commit and the tag are pushed, and the GitHub release is created;
-4. the package is published with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers), which attaches
-   provenance automatically. No npm token is stored anywhere.
+3. `CHANGELOG.md` is updated, the version commit and the tag are pushed to `main`, and the GitHub release is created;
+4. only after all of that, the `after:release` hook runs `npm publish`, which uses
+   [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) and attaches provenance automatically. No npm
+   token is stored anywhere, and a rejected push stops the release before anything reaches npm.
 
-A release therefore consists of merging a pull request. `npm run release` runs the same thing from a machine with a
-GitHub token in `.env` (see `.env.example`), but publishing to npm from a machine needs an npm login, so prefer CI.
+A release therefore consists of merging a pull request. The release commit pushed by the workflow contains no
+releasable changes, so the run it triggers is a no-op. `npm run release` runs the same thing from a machine with a
+GitHub token in `.env` (see `.env.example`), but the final `npm publish` then needs an npm login, so prefer CI.
 
-One-time setup for trusted publishing: on npmjs.com, open the package settings, add a **GitHub Actions** trusted
-publisher for `Akurganow/array-functions` with the workflow file `publish.yml` and the environment `npm`, and create a
-matching `npm` environment in the GitHub repository settings.
+One-time setup:
+
+- **npm trusted publishing**: on npmjs.com, open the package settings, add a **GitHub Actions** trusted publisher for
+  `Akurganow/array-functions` with the workflow file `publish.yml` and the environment `npm`, and create a matching
+  `npm` environment in the GitHub repository settings.
+- **`RELEASE_TOKEN`**: `main` is protected, and the default `GITHUB_TOKEN` cannot push the release commit and tag to
+  it. Create a fine-grained personal access token for this repository with *Contents: read and write* (the token
+  owner must be allowed to bypass the branch rule) and store it as the `RELEASE_TOKEN` repository secret. It is used
+  for the push and for creating the GitHub release.
