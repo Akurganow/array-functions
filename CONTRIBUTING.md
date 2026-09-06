@@ -97,21 +97,24 @@ A `feat` bumps the minor version, a `fix` the patch version, and a `BREAKING CHA
 
 ## Releasing
 
-Releases are automatic. Every push to `main` runs the [`Release`](./.github/workflows/publish.yml) workflow, which is
-a plain [release-it](https://github.com/release-it/release-it) run in CI mode:
+Releases are automatic and split into two [release-it](https://github.com/release-it/release-it) runs, so that the
+part that can fail after the tag exists can simply be re-run:
 
-1. `npm run check` (the `before:init` hook);
-2. the version bump is computed from the conventional commits since the last tag by
-   `@release-it/conventional-changelog`; `chore`, `docs` and similar commits alone do not produce a release, and
-   release-it exits without doing anything when there is nothing to release;
-3. `CHANGELOG.md` is updated, the version commit and the tag are pushed to `main`, and the GitHub release is created;
-4. only after all of that, the `after:release` hook runs `npm publish`, which uses
-   [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) and attaches provenance automatically. No npm
-   token is stored anywhere, and a rejected push stops the release before anything reaches npm.
+1. [`Release`](./.github/workflows/release.yml) runs on every push to `main`: `npm ci` and `npm run check` first,
+   then `release-it --ci` computes the bump from the conventional commits since the last tag with
+   `@release-it/conventional-changelog`, updates `CHANGELOG.md`, commits, tags and pushes to `main`. `chore`, `docs`
+   and similar commits alone do not produce a release, and release-it exits without doing anything when there is
+   nothing to release. The release commit it pushes contains nothing releasable, so the run it triggers is a no-op.
+2. [`Publish`](./.github/workflows/publish.yml) runs when that tag is pushed: `npm publish` through
+   [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (provenance is attached automatically, no npm
+   token is stored anywhere), then `release-it --no-increment --github.update` creates the GitHub release for the
+   tag from the same conventional commits. Both steps are safe to repeat: a version that is already on the registry
+   is skipped and an existing GitHub release is updated, so a failed run is fixed by re-running it from the Actions
+   tab.
 
-A release therefore consists of merging a pull request. The release commit pushed by the workflow contains no
-releasable changes, so the run it triggers is a no-op. `npm run release` runs the same thing from a machine with a
-GitHub token in `.env` (see `.env.example`), but the final `npm publish` then needs an npm login, so prefer CI.
+A release therefore consists of merging a pull request. `npm run release` runs the same release-it configuration
+from a machine with a GitHub token in `.env` (see `.env.example`); it pushes the tag and creates the GitHub release,
+and the `Publish` workflow still does the npm publish, so the package is always published with provenance from CI.
 
 One-time setup:
 
@@ -119,6 +122,7 @@ One-time setup:
   `Akurganow/array-functions` with the workflow file `publish.yml` and the environment `npm`, and create a matching
   `npm` environment in the GitHub repository settings.
 - **`RELEASE_TOKEN`**: `main` is protected, and the default `GITHUB_TOKEN` cannot push the release commit and tag to
-  it. Create a fine-grained personal access token for this repository with *Contents: read and write* (the token
-  owner must be allowed to bypass the branch rule) and store it as the `RELEASE_TOKEN` repository secret. It is used
-  for the push and for creating the GitHub release.
+  it. Create a fine-grained personal access token restricted to this repository with *Contents: read and write* and
+  nothing else (the token owner must be allowed to bypass the branch rule) and store it as the `RELEASE_TOKEN`
+  repository secret. The `Release` workflow hands it to git only for the push step, after dependencies are installed
+  and the checks have run; the GitHub release and the npm publish do not use it.

@@ -95,8 +95,7 @@
 		"hooks": {
 			"before:init": [
 				"npm run check"
-			],
-			"after:release": "npm publish"
+			]
 		},
 		"plugins": {
 			"@release-it/conventional-changelog": {

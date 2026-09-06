@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# The release commit and tag are pushed with RELEASE_TOKEN (see below); GITHUB_TOKEN only needs to read.
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Version, changelog, tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # release-it and the conventional-changelog plugin need the tags and the full history.
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      # Dependencies are installed and the full check runs before any credential that can write to `main` exists in
+      # the job, so no lifecycle script or dev tool ever sees it.
+      - run: npm ci
+      - run: npm run check
+      - name: Configure the git user for the release commit
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      # release-it computes the bump from the conventional commits since the last tag, updates CHANGELOG.md, commits,
+      # tags and pushes to main. With nothing releasable since the last tag it exits 0 without doing anything.
+      # The `before:init` hook (`npm run check`) already ran above, and the GitHub release and npm publish happen in
+      # the Publish workflow, which the pushed tag triggers and which can be re-run on its own.
+      # `main` is protected, so the push uses a personal access token whose owner may bypass the branch rule; it is
+      # handed to git only here, for this single step.
+      - name: Bump, tag and push
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          git remote set-url origin "https://x-access-token:${RELEASE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          npx release-it --ci --no-hooks.before:init --no-github
