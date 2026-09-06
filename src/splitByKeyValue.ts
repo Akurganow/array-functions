@@ -1,30 +1,35 @@
 /**
- * Splits an array of objects into subarrays with the same value of the given key.
- * @template T The type of the object.
- * @param {T[]} arr The array of objects.
- * @param {keyof T} key The key to split by.
- * @returns {T[][]} An array of subarrays, where each subarray contains objects with the same value for the given key.
+ * Groups an array of objects into sub-arrays that share the same value of the given key.
+ *
+ * Values are compared with the same-value-zero algorithm used by `Map`, so `1` and `'1'` land in different groups
+ * and objects are grouped by reference. Groups are ordered by the first appearance of their value, and objects keep
+ * their relative order inside a group.
+ *
+ * @param arr The objects to group.
+ * @param key The key to group by.
+ * @returns An array of groups.
  *
  * @example
- * const array = [
+ * splitByKeyValue([
  *   { id: 1, name: 'Alice' },
  *   { id: 2, name: 'Bob' },
  *   { id: 3, name: 'Alice' },
- * ];
- * splitByKeyValue(array, 'name'); // Output: [[{ id: 1, name: 'Alice' }, { id: 3, name: 'Alice' }], [{ id: 2, name: 'Bob' }]]
+ * ], 'name')
+ * // [[{ id: 1, name: 'Alice' }, { id: 3, name: 'Alice' }], [{ id: 2, name: 'Bob' }]]
  */
-export default function splitByKeyValue<T extends { [k in string]: unknown }>(arr: T[], key: keyof T): T[][] {
-	const groups: { [key: string]: T[] } = {}
+export default function splitByKeyValue<T extends object, K extends keyof T>(arr: readonly T[], key: K): T[][] {
+	const groups = new Map<T[K], T[]>()
 
-	arr.forEach(item => {
-		const keyValue = String(item[key])
+	for (const item of arr) {
+		const value = item[key]
+		const group = groups.get(value)
 
-		if (!groups[keyValue]) {
-			groups[keyValue] = []
+		if (group) {
+			group.push(item)
+		} else {
+			groups.set(value, [item])
 		}
+	}
 
-		groups[keyValue].push(item)
-	})
-
-	return Object.values(groups)
+	return [...groups.values()]
 }

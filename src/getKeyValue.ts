@@ -1,14 +1,13 @@
 /**
- * Returns the array of values of a given key from an array of objects.
- * @template T The type of the object.
- * @param {T[]} arr The array of objects.
- * @param {keyof T} key The key to get values by.
- * @returns {T[keyof T][]} The array of values.
+ * Returns the values of the given key from an array of objects.
+ *
+ * @param arr The objects to read from.
+ * @param key The key to read.
+ * @returns The values, in the same order as the objects.
  *
  * @example
- * const array = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
- * getKeyValue(array, 'name'); // Output: ['Alice', 'Bob']
+ * getKeyValue([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }], 'name') // ['Alice', 'Bob']
  */
-export default function getKeyValue<T extends { [k in string]: unknown }>(arr: T[], key: keyof T): T[keyof T][] {
+export default function getKeyValue<T extends object, K extends keyof T>(arr: readonly T[], key: K): T[K][] {
 	return arr.map(item => item[key])
 }

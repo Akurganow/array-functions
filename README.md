@@ -1,45 +1,69 @@
-# array-functions
-A set of frequently used functions for working with arrays, for sorting, filtering or checking the state of an array
+# @plq/array-functions
 
-## Functions
+[![npm version](https://img.shields.io/npm/v/@plq/array-functions.svg)](https://www.npmjs.com/package/@plq/array-functions)
+[![CI](https://github.com/Akurganow/array-functions/actions/workflows/ci.yml/badge.svg)](https://github.com/Akurganow/array-functions/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![npm downloads](https://img.shields.io/npm/dm/@plq/array-functions.svg)](https://www.npmjs.com/package/@plq/array-functions)
 
-### `filterBySameKeyValue`
+A small, dependency-free set of typed helpers for working with arrays of objects: sorting, grouping, deduplicating and
+checking whether an array is already sorted.
 
-Filters an array of objects so that the value of a given key occurs only once in the array.
+- **Zero dependencies**, under 3 kB gzipped.
+- **ESM and CommonJS** builds with bundled type declarations.
+- **Runs everywhere**: tested on Node.js and Bun across Linux, macOS and Windows.
+- **Pure functions**: inputs are never mutated.
 
-```javascript
-import { filterBySameKeyValue } from '@plq/array-functions'
+## Installation
 
-const array = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' },
-  { id: 3, name: 'Alice' },
-]
-
-console.log(filterBySameKeyValue(array, 'name')) // Output: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]
+```bash
+npm install @plq/array-functions
+# or
+pnpm add @plq/array-functions
+# or
+yarn add @plq/array-functions
+# or
+bun add @plq/array-functions
 ```
 
-### `getKeyValue`
+## Usage
 
-Returns the array of values of a given key from an array of objects.
+```typescript
+import { sortBy, splitByKeyValue } from '@plq/array-functions'
 
-```javascript
-import { getKeyValue } from '@plq/array-functions'
-
-const array = [
-  { id: 1, name: 'Alice' },
+const users = [
   { id: 2, name: 'Bob' },
   { id: 3, name: 'Alice' },
+  { id: 1, name: 'Alice' },
 ]
 
-console.log(getKeyValue(array, 'name')) // Output: ['Alice', 'Bob', 'Alice']
+sortBy(users, 'id', 'asc')
+// [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }, { id: 3, name: 'Alice' }]
+
+splitByKeyValue(users, 'name')
+// [[{ id: 2, name: 'Bob' }], [{ id: 3, name: 'Alice' }, { id: 1, name: 'Alice' }]]
 ```
 
-### `sortBy`
-
-Sorts an array of objects by a given key.
+CommonJS works too:
 
 ```javascript
+const { sortBy } = require('@plq/array-functions')
+```
+
+> **Note on ordering.** Every sorting-related function (`sortBy`, `isSortedBy`, `isSortedValues`, `compareValues`)
+> defaults to **descending** order. Pass `'asc'` explicitly for ascending order.
+
+## API
+
+### Sorting
+
+#### `sortBy(items, key, order?)`
+
+Returns a **new** array of objects sorted by `key`. The input is left untouched and the sort is stable.
+`key` must point to a `string`, a `number`, or a function returning one of those. The function is called and its
+return value is used for comparison. `NaN` values compare equal to everything, so their position in the result is
+unspecified (as in 1.x).
+
+```typescript
 import { sortBy } from '@plq/array-functions'
 
 const array = [
@@ -48,16 +72,26 @@ const array = [
   { id: 2, name: 'Bob' },
 ]
 
-console.log(sortBy(array, 'id')) // Output: [{ id: 3, name: 'Bob' }, { id: 2, name: 'Alice' }, { id: 1, name: 'Alice' }]
-console.log(sortBy(array, 'id', 'asc')) // Output: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Alice' }, { id: 3, name: 'Bob' }]
+sortBy(array, 'id')
+// [{ id: 3, name: 'Alice' }, { id: 2, name: 'Bob' }, { id: 1, name: 'Alice' }]
+
+sortBy(array, 'id', 'asc')
+// [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }, { id: 3, name: 'Alice' }]
+
+sortBy([{ createdAt: () => 20 }, { createdAt: () => 10 }], 'createdAt', 'asc')
+// [{ createdAt: [Function] /* 10 */ }, { createdAt: [Function] /* 20 */ }]
 ```
 
-### `isSorted`
+Throws a `TypeError` when two compared values have different types (for example a `string` and a `number`).
 
-Checks if an array of objects is sorted by a given key.
+#### `isSortedBy(array, key, order?)`
 
-```javascript
-import { isSorted } from '@plq/array-functions'
+Checks whether an array of objects is sorted by `key`. Equal neighbours count as sorted. Empty and single-element
+arrays are always sorted. `NaN` never compares as sorted against a neighbour, so an array of two or more elements
+that contains `NaN` is never considered sorted.
+
+```typescript
+import { isSortedBy } from '@plq/array-functions'
 
 const array = [
   { id: 1, name: 'Alice' },
@@ -65,109 +99,155 @@ const array = [
   { id: 3, name: 'Alice' },
 ]
 
-console.log(isSorted(array, 'id')) // Output: false because default sort order is 'desc'
-console.log(isSorted(array, 'id', 'asc')) // Output: true
-console.log(isSorted(array, 'name', 'asc')) // Output: false
+isSortedBy(array, 'id')          // false, the default order is 'desc'
+isSortedBy(array, 'id', 'asc')   // true
+isSortedBy(array, 'name', 'asc') // false
 ```
 
-### `getUniqueValues`
+Throws a `TypeError` when the array contains a non-object or when neighbouring values have different types.
 
-Returns an array of unique values from an array of objects.
+#### `isSortedValues(values, order?)`
 
-```javascript
+The same check for a flat array of strings or numbers. `NaN` never compares as sorted against a neighbour, so an
+array of two or more elements that contains `NaN` is never considered sorted; a single-element array always is.
+
+```typescript
+import { isSortedValues } from '@plq/array-functions'
+
+isSortedValues([3, 2, 1])            // true
+isSortedValues([1, 2, 3], 'asc')     // true
+isSortedValues(['a', 'c', 'b'], 'asc') // false
+```
+
+#### `compareValues(a, b, order?)`
+
+A comparator for `Array.prototype.sort`. Strings are compared with `localeCompare`, numbers arithmetically.
+Values of any other type are treated as equal. Two values of different types (e.g. a string and a number) are
+treated as equal and `0` is returned.
+
+```typescript
+import { compareValues } from '@plq/array-functions'
+
+['b', 'c', 'a'].sort((a, b) => compareValues(a, b, 'asc')) // ['a', 'b', 'c']
+[1, 3, 2].sort(compareValues)                                // [3, 2, 1]
+```
+
+### Reading values
+
+#### `getKeyValue(array, key)`
+
+Returns the values of `key` from every object, in order, duplicates included.
+
+```typescript
+import { getKeyValue } from '@plq/array-functions'
+
+getKeyValue([{ name: 'Alice' }, { name: 'Bob' }, { name: 'Alice' }], 'name')
+// ['Alice', 'Bob', 'Alice']
+```
+
+#### `getUniqueValues(array, key)`
+
+Returns the distinct values of `key`, in order of first appearance. Values are compared like `Set` does:
+objects by reference, `NaN` equal to `NaN`.
+
+```typescript
 import { getUniqueValues } from '@plq/array-functions'
 
-const array = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' },
-  { id: 3, name: 'Alice' },
-]
-
-console.log(getUniqueValues(array, 'name')) // Output: ['Alice', 'Bob']
+getUniqueValues([{ name: 'Alice' }, { name: 'Bob' }, { name: 'Alice' }], 'name')
+// ['Alice', 'Bob']
 ```
 
-### `splitByKeyValue`
+### Grouping and filtering
 
-Splits an array of objects into subarrays with the same value of the given key.
+#### `splitByKeyValue(array, key)`
 
-```javascript
+Groups objects that share the same value of `key` into sub-arrays. Groups appear in order of first appearance and
+objects keep their relative order within a group. `1` and `'1'` are different values.
+
+```typescript
 import { splitByKeyValue } from '@plq/array-functions'
 
 const array = [
-	{ id: 1, name: 'Alice' },
-	{ id: 2, name: 'Bob' },
-	{ id: 3, name: 'Alice' },
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 3, name: 'Alice' },
 ]
 
-console.log(splitByKeyValue(array, 'name')) // Output: [[{ id: 1, name: 'Alice' }, { id: 3, name: 'Alice' }], [{ id: 2, name: 'Bob' }]]
+splitByKeyValue(array, 'name')
+// [[{ id: 1, name: 'Alice' }, { id: 3, name: 'Alice' }], [{ id: 2, name: 'Bob' }]]
 ```
 
-### `createBalancedArray`
+#### `filterBySameKeyValue(value, index, array, key)`
 
-Creates an array of a specified length where the sum of all elements equals a given sum. The function distributes the sum evenly across the array elements. If the sum is negative, the function creates an array of negative numbers. If the sum cannot be evenly distributed, the function distributes the remainder as evenly as possible. If the length is zero or negative, the function returns an empty array.
+A predicate for `Array.prototype.filter` that keeps only the first object for each distinct value of `key`.
+
+```typescript
+import { filterBySameKeyValue } from '@plq/array-functions'
+
+const array = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 3, name: 'Alice' },
+]
+
+array.filter((item, index, all) => filterBySameKeyValue(item, index, all, 'name'))
+// [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]
+```
+
+### Building arrays
+
+#### `createBalancedArray(length, sum)`
+
+Creates an array of `length` integers that add up to `sum`, spreading the sum as evenly as possible. The remainder is
+distributed one unit at a time from the start of the array. A negative `sum` yields non-positive elements; a zero or
+negative `length` yields an empty array.
 
 ```typescript
 import { createBalancedArray } from '@plq/array-functions'
 
-console.log(createBalancedArray(5, 10)); // Output: [2, 2, 2, 2, 2]
-console.log(createBalancedArray(3, -5)); // Output: [-2, -2, -1]
-console.log(createBalancedArray(0, 10)); // Output: []
-console.log(createBalancedArray(-3, 10)); // Output: []
+createBalancedArray(5, 10) // [2, 2, 2, 2, 2]
+createBalancedArray(3, 10) // [4, 3, 3]
+createBalancedArray(3, -5) // [-2, -2, -1]
+createBalancedArray(0, 10) // []
 ```
 
-## Development
+Throws a `RangeError` when `length` or `sum` is not an integer.
 
-### Install dependencies
+### Types
 
-```bash
-npm install
+The package exports its helper types, so you can constrain your own APIs:
+
+```typescript
+import type { SortableKey, SortableOrder } from '@plq/array-functions'
+
+interface User { id: number, name: string, tags: string[] }
+
+type Key = SortableKey<User> // 'id' | 'name' — `tags` is not sortable
+type Order = SortableOrder   // 'asc' | 'desc'
 ```
 
-### Lint
+`DEFAULT_ORDER` (`'desc'`) is exported as well.
 
-We use [ESLint](https://eslint.org/) and [@typescript-eslint/eslint-plugin](https://www.npmjs.com/package/@typescript-eslint/eslint-plugin) to lint our code.
-</br>
-Check out [.eslintrc.json](https://github.com/Akurganow/array-functions/blob/main/.eslintrc.json)
+**Sorting by an optional property.** `SortableKey<T>` only offers keys whose value is always a `string`, a `number`
+or a getter returning one, so `label?: string` is not accepted. In 1.x such a call compiled but threw at runtime as
+soon as one element had no value. Narrow the element type first, for example
+`items.filter((item): item is Item & Required<Pick<Item, 'label'>> => item.label !== undefined)`, and sort the
+narrowed array.
 
-```bash
-npm run lint
-```
+## Supported runtimes
 
-### Run tests
+| Runtime | Versions tested | Platforms |
+| ------- | --------------- | --------- |
+| Node.js | active LTS and latest (currently 24 and 26) | Linux, macOS, Windows |
+| Bun     | two most recent minor lines (currently 1.3 and 1.4) | Linux, macOS, Windows |
 
-We use [Jest](https://jestjs.io/) to test our code.
+The published build targets ES2022 and declares `engines.node >= 22`.
 
-```bash
-npm test
-```
+## Contributing
 
-### Build
+Bug reports and pull requests are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the development workflow,
+the test matrix and the release process.
 
-We use [TypeScript](https://www.typescriptlang.org/) to build our code.
+## License
 
-```bash
-npm run build
-```
-
-### GitHub Copilot
-
-This repository includes a configured GitHub Copilot setup via `.github/copilot.yml` to provide enhanced code suggestions. The configuration includes:
-
-- **Repository context**: Understands this is a TypeScript array utility library
-- **File patterns**: Focuses on source files (`src/`) and tests (`__tests__/`)
-- **Code guidelines**: Promotes functional programming, type safety, and comprehensive testing
-- **Custom instructions**: Provides specific guidance for maintaining code quality and consistency
-
-The Copilot configuration helps ensure generated code follows the project's patterns and best practices.
-
-### Dev check list
-
-- [ ] Add new file to `src` folder like `function-name.ts`
-- [ ] Write a function `functionName` in `function-name.ts`
-- [ ] Add new function to `src/index.ts` like `export { default as functionName } from './function-name'`
-- [ ] Add new test to `__tests__` folder with name `function-name.test.ts`
-- [ ] Write tests for `functionName` in `function-name.test.ts`
-- [ ] Run `npm run lint`
-- [ ] Run `npm run test`
-- [ ] Commit and push your changes
-- [ ] Create a pull request
+[MIT](./LICENSE) © Alexander Kurganov
